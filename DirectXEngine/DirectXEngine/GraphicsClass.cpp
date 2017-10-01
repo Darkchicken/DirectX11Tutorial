@@ -52,7 +52,7 @@ bool GraphicsClass::Frame()
 	bool result;
 
 	//Render the graphics scene
-	result = Render();
+	result = render();
 	if (!result)
 	{
 		return false;

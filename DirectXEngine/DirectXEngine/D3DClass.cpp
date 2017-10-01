@@ -290,44 +290,176 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	{
 		return false;
 	}
+
+	//Bind the render target view and the depth stencil buffer to the outer render pipeline
+	m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
+
+	//Setup the rasterizer description to determine how and what polygons will be drawn
+	rasterDesc.AntialiasedLineEnable = false;
+	rasterDesc.CullMode = D3D11_CULL_BACK;
+	rasterDesc.DepthBias = 0;
+	rasterDesc.DepthBiasClamp = 0.0f;
+	rasterDesc.DepthClipEnable = true;
+	rasterDesc.FillMode = D3D11_FILL_SOLID;
+	rasterDesc.FrontCounterClockwise = false;
+	rasterDesc.MultisampleEnable = false;
+	rasterDesc.ScissorEnable = false;
+	rasterDesc.SlopeScaledDepthBias = 0.0f;
+
+	//Create the rasterizer from the description we just filled out
+	result = m_device->CreateRasterizerState(&rasterDesc, &m_rasterState);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	//Now set the rasterizer state
+	m_deviceContext->RSSetState(m_rasterState);
+
+	//Setup the viewport for rendering
+	viewPort.Width = (float)screenWidth;
+	viewPort.Height = (float)screenHeight;
+	viewPort.MinDepth = 0.0f;
+	viewPort.MaxDepth = 1.0f;
+	viewPort.TopLeftX = 0.0f;
+	viewPort.TopLeftY = 0.0f;
+
+	//Create the viewport
+	m_deviceContext->RSSetViewports(1, &viewPort);
+
+	//Setup the projection matrix
+	fieldOfView = (float)D3DX_PI / 4.0f;
+	screenAspect = (float)screenWidth / (float)screenHeight;
+
+	//Create the projection matrix for screen rendering
+	D3DXMatrixPerspectiveFovLH(&m_projectionMatrix, fieldOfView, screenAspect, screenNear, screenDepth);
+
+	//Initialize the world matrix to the identity matrix
+	D3DXMatrixIdentity(&m_worldMatrix);
+
+	//Create an orthographics projection matrix for 2d rendering
+	D3DXMatrixOrthoLH(&m_orthoMatrix, (float)screenWidth, (float)screenHeight, screenNear, screenDepth);
+
+	return true;
+
 }
 void D3DClass::Shutdown()
 {
+	//Before shutting down, set to windowed mode or the swap chain will throw and exception
+	if (m_swapChain)
+	{
+		m_swapChain->SetFullscreenState(false, NULL);
+	}
 
+	if (m_rasterState)
+	{
+		m_rasterState->Release();
+		m_rasterState = 0;
+	}
+
+	if (m_depthStencilView)
+	{
+		m_depthStencilView->Release();
+		m_depthStencilView = 0;
+	}
+
+	if (m_depthStencilState)
+	{
+		m_depthStencilState->Release();
+		m_depthStencilState = 0;
+	}
+	if (m_depthStencilBuffer)
+	{
+		m_depthStencilBuffer->Release();
+		m_depthStencilBuffer = 0;
+	}
+	if (m_renderTargetView)
+	{
+		m_renderTargetView->Release();
+		m_renderTargetView = 0;
+	}
+	if (m_deviceContext)
+	{
+		m_deviceContext->Release();
+		m_deviceContext = 0;
+	}
+	if (m_device)
+	{
+		m_device->Release();
+		m_device = 0;
+	}
+	if (m_swapChain)
+	{
+		m_swapChain->Release();
+		m_swapChain = 0;
+	}
+
+	return;
 }
 
-void D3DClass::BeginScene(float, float, float, float)
+void D3DClass::BeginScene(float red, float green, float blue, float alpha)
 {
+	float color[4];
 
+	//Setup the color to clear the buffer to
+	color[0] = red;
+	color[1] = green;
+	color[2] = blue;
+	color[3] = alpha;
+
+	//Clear the back buffer
+	m_deviceContext->ClearRenderTargetView(m_renderTargetView, color);
+
+	//Clear the depth buffer
+	m_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+	return;
 }
 void D3DClass::EndScene()
 {
+	//Present the back buffer to the screen since rendering is complete
+	if (m_vsync_enabled)
+	{
+		//Lock to screen refresh rate
+		m_swapChain->Present(1, 0);
+	}
+	else
+	{
+		//Present as fast as possible
+		m_swapChain->Present(0, 0);
+	}
 
+	return;
 }
 
 ID3D11Device* D3DClass::GetDevice()
 {
-
+	return m_device;
 }
 ID3D11DeviceContext* D3DClass::GetDeviceContext()
 {
-
+	return m_deviceContext;
 }
 
-void D3DClass::GetProjectionMatrix(D3DXMATRIX&)
+void D3DClass::GetProjectionMatrix(D3DXMATRIX& projectionMatrix)
 {
-
+	projectionMatrix = m_projectionMatrix;
+	return;
 }
-void D3DClass::GetWorldMatrix(D3DXMATRIX&)
+void D3DClass::GetWorldMatrix(D3DXMATRIX& worldMatrix)
 {
-
+	worldMatrix = m_worldMatrix;
+	return;
 }
-void D3DClass::GetOrthoMatrix(D3DXMATRIX&)
+void D3DClass::GetOrthoMatrix(D3DXMATRIX& orthoMatrix)
 {
-
+	orthoMatrix = m_orthoMatrix;
+	return;
 }
 
-void D3DClass::GetVideoCardInfo(char*, int&)
+void D3DClass::GetVideoCardInfo(char* cardName, int& memory)
 {
-
+	strcpy_s(cardName, 128, m_videoCardDescription);
+	memory = m_videoCardMemory;
+	return;
 }
