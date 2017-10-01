@@ -3,7 +3,7 @@
 #ifndef _GRAPHICSCLASS_H_
 #define _GRAPHICSCLASS_H_
 
-#include <windows.h>
+#include "D3dClass.h"
 
 //Globals
 const bool FULL_SCREEN = false;
@@ -25,6 +25,7 @@ private:
 	bool render();
 
 private:
+	D3DClass* m_D3D;
 };
 
 #endif
