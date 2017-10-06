@@ -30,7 +30,7 @@ public:
 private:
 	bool initializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
 	void shutdownShader();
-	void outputShaderErrorMessage(ID3D10Blob, HWND, WCHAR*);
+	void outputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
 	bool setShaderParameters(ID3D11DeviceContext*, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX);
 	void renderShader(ID3D11DeviceContext*, int);
