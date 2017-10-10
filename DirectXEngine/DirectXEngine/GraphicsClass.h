@@ -4,6 +4,9 @@
 #define _GRAPHICSCLASS_H_
 
 #include "D3dClass.h"
+#include "CameraClass.h"
+#include "ModelClass.h"
+#include "ColorShaderClass.h"
 
 //Globals
 const bool FULL_SCREEN = false;
@@ -26,6 +29,11 @@ private:
 
 private:
 	D3DClass* m_D3D;
+
+	CameraClass* m_Camera;
+	ModelClass* m_Model;
+	ColorShaderClass* m_ColorShader;
+
 };
 
 #endif

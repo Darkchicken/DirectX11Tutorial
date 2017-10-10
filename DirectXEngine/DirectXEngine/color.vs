@@ -3,7 +3,7 @@
 cbuffer MatrixBuffer
 {
 	matrix worldMatrix;
-	martix viewMatrix;
+	matrix viewMatrix;
 	matrix projectionMatrix;
 };
 
