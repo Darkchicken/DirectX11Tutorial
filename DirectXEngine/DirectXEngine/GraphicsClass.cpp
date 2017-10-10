@@ -64,6 +64,13 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	//Create the color shader object
+	m_ColorShader = new ColorShaderClass;
+	if (!m_ColorShader)
+	{
+		return false;
+	}
+
+	//Initialize the color shader object
 	result = m_ColorShader->Initialize(m_D3D->GetDevice(), hwnd);
 	if (!result)
 	{
@@ -122,7 +129,7 @@ bool GraphicsClass::Frame()
 
 bool GraphicsClass::render()
 {
-	D3DXMATRIX viewMatrix, projectionMatrix, worldMatrix;
+	XMMATRIX viewMatrix, projectionMatrix, worldMatrix;
 	bool result;
 
 	//Clear the buffers to begin the scene

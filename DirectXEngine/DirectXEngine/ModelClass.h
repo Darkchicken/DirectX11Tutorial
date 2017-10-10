@@ -4,16 +4,16 @@
 #define _MODELCLASS_H_
 
 #include <d3d11.h>
-#include <d3dx10math.h>
-
+#include <directxmath.h>
+using namespace DirectX;
 
 class ModelClass
 {
 private:
 	struct VertexType
 	{
-		D3DXVECTOR3 position;
-		D3DXVECTOR4 color;
+		XMFLOAT3 position;
+		XMFLOAT4 color;
 	};
 public:
 	ModelClass();

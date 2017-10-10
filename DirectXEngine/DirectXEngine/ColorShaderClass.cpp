@@ -38,7 +38,7 @@ void ColorShaderClass::Shutdown()
 	return;
 }
 bool ColorShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, 
-	D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, D3DXMATRIX projectionMatrix)
+	XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix)
 {
 	bool result;
 
@@ -71,8 +71,8 @@ bool ColorShaderClass::initializeShader(ID3D11Device* device, HWND hwnd, WCHAR* 
 	pixelShaderBuffer = 0;
 
 	//Compile the vertex shader code
-	result = D3DX11CompileFromFile(vsFilename, NULL, NULL, "ColorVertexShader", "vs_5_0", 
-		D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL, &vertexShaderBuffer, &errorMessage, NULL);
+	result = D3DCompileFromFile(vsFilename, NULL, NULL, "ColorVertexShader", "vs_5_0", 
+		D3D10_SHADER_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage);
 	if (FAILED(result))
 	{
 		//If the shader fails to compile, it should have written something to the error message
@@ -89,8 +89,8 @@ bool ColorShaderClass::initializeShader(ID3D11Device* device, HWND hwnd, WCHAR* 
 	}
 
 	//Compile the pixel shader code
-	result = D3DX11CompileFromFile(psFilename, NULL, NULL, "ColorPixelShader", "ps_5_0",
-		D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL, &pixelShaderBuffer, &errorMessage, NULL);
+	result = D3DCompileFromFile(psFilename, NULL, NULL, "ColorPixelShader", "ps_5_0",
+		D3D10_SHADER_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage);
 	if (FAILED(result))
 	{
 		//If the shader fails to compile, it should have written something to the error message
@@ -209,14 +209,14 @@ void ColorShaderClass::shutdownShader()
 void ColorShaderClass::outputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename)
 {
 	char* compileErrors;
-	unsigned long bufferSize, i;
+	int bufferSize;
 	std::ofstream fout;
 
 	//Get a pointer to the error message text buffer
 	compileErrors = (char*)(errorMessage->GetBufferPointer());
 
 	//Get the length of the message
-	bufferSize = errorMessage->GetBufferSize();
+	bufferSize = (int)errorMessage->GetBufferSize();
 
 	//Open a file to write the error message to
 	fout.open("shader-error.txt");
@@ -240,8 +240,8 @@ void ColorShaderClass::outputShaderErrorMessage(ID3D10Blob* errorMessage, HWND h
 	return;
 }
 
-bool ColorShaderClass::setShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, 
-	D3DXMATRIX viewMatrix, D3DXMATRIX projectionMatrix)
+bool ColorShaderClass::setShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix,
+	XMMATRIX viewMatrix, XMMATRIX projectionMatrix)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -249,9 +249,9 @@ bool ColorShaderClass::setShaderParameters(ID3D11DeviceContext* deviceContext, D
 	unsigned int bufferNumber;
 
 	//Transpose the matricies to prepare them for the shader
-	D3DXMatrixTranspose(&worldMatrix, &worldMatrix);
-	D3DXMatrixTranspose(&viewMatrix, &viewMatrix);
-	D3DXMatrixTranspose(&projectionMatrix, &projectionMatrix);
+	worldMatrix = XMMatrixTranspose(worldMatrix);
+	viewMatrix = XMMatrixTranspose(viewMatrix);
+	projectionMatrix = XMMatrixTranspose(projectionMatrix);
 
 	//Lock the constant buffer so it can be written to
 	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0 , &mappedResource);
