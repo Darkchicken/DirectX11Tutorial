@@ -5,6 +5,7 @@
 
 #include <d3d11.h>
 #include <directxmath.h>
+#include <fstream>
 
 //class includes 
 #include "TextureClass.h"
@@ -20,12 +21,19 @@ private:
 		XMFLOAT2 texture;
 		XMFLOAT3 normal;
 	};
+
+	struct ModelType
+	{
+		float x, y, z;
+		float tu, tv;
+		float nx, ny, nz;
+	};
 public:
 	ModelClass();
 	ModelClass(const ModelClass&);
 	~ModelClass();
 
-	bool Initialize(ID3D11Device*, ID3D11DeviceContext*, char*);
+	bool Initialize(ID3D11Device*, char*, WCHAR*);
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
 
@@ -41,12 +49,15 @@ private:
 	bool loadTexture(ID3D11Device*, ID3D11DeviceContext*, char*);
 	void releaseTexture();
 
+	bool loadModel(char*);
+	void releaseModel();
+
 private:
 	ID3D11Buffer *m_vertexBuffer, *m_indexBuffer;
 	int m_vertexCount, m_indexCount;
 
 	TextureClass* m_texture;
-
+	ModelType* m_model;
 };
 
 #endif

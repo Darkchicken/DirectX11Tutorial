@@ -7,6 +7,7 @@ ModelClass::ModelClass()
 	m_vertexBuffer = 0;
 	m_indexBuffer = 0;
 	m_texture = 0;
+	m_model = 0;
 }
 
 ModelClass::ModelClass(const ModelClass& other)
@@ -17,9 +18,16 @@ ModelClass::~ModelClass()
 {
 }
 
-bool ModelClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* textureFilename)
+bool ModelClass::Initialize(ID3D11Device* device, char* modelFilename, WCHAR* textureFilename)
 {
 	bool result;
+
+	//Load in the model data
+	result = loadModel(modelFilename);
+	if (!result)
+	{
+		return false;
+	}
 
 	//initialize the vertex and index buffers that hold the geometry for the triangle
 	result = initializeBuffers(device);
@@ -29,7 +37,7 @@ bool ModelClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCon
 	}
 
 	//Load the texture for this model
-	result = loadTexture(device, deviceContext, textureFilename);
+	result = loadTexture(device, textureFilename);
 	if (!result)
 	{
 		return false;
@@ -43,6 +51,9 @@ void ModelClass::Shutdown()
 
 	//Release the vertex and index buffers
 	shutdownBuffers();
+
+	//Release the model data
+	releaseModel();
 
 	return;
 }
@@ -74,12 +85,6 @@ bool ModelClass::initializeBuffers(ID3D11Device* device)
 	D3D11_SUBRESOURCE_DATA vertexData, indexData;
 	HRESULT result;
 
-	//Set the number of vertices in the vertex array
-	m_vertexCount = 3;
-
-	//Set the number of indices in the index array
-	m_indexCount = 3;
-
 	//Create the vertex array
 	vertices = new VertexType[m_vertexCount];
 	if (!vertices)
@@ -92,6 +97,16 @@ bool ModelClass::initializeBuffers(ID3D11Device* device)
 	if (!indices)
 	{
 		return false;
+	}
+
+	//Load the vertex array and index array with data
+	for (int i = 0; i < m_vertexCount; ++i)
+	{
+		vertices[i].position = XMFLOAT3(m_model[i].x, m_model[i].y, m_model[i].z);
+		vertices[i].texture = XMFLOAT2(m_model[i].tu, m_model[i].tv);
+		vertices[i].normal = XMFLOAT3(m_model[i].nx, m_model[i].ny, m_model[i].nz);
+
+		indices[i] = i;
 	}
 
 	//Load the vertex array with data
@@ -228,4 +243,36 @@ void ModelClass::releaseTexture()
 		delete m_texture;
 		m_texture = 0;
 	}
+}
+
+bool ModelClass::loadModel(char* filename)
+{
+	std::ifstream fin;
+	char input;
+
+	//Open the model file
+	fin.open(filename);
+
+	//If it could not open the file then exit
+	if (fin.fail())
+	{
+		return false;
+	}
+
+	//Read up to the value of vertex count
+	fin.get(input);
+	while (input != ':')
+	{
+		fin.get(input);
+	}
+
+	//Read in the vertex count
+	fin >> m_vertexCount;
+
+	//Set the number of indices to be the same as the vertex count
+	m_indexCount = m_vertexCount;
+}
+void ModelClass::releaseModel()
+{
+
 }
