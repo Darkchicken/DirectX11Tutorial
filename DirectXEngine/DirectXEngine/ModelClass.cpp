@@ -18,7 +18,7 @@ ModelClass::~ModelClass()
 {
 }
 
-bool ModelClass::Initialize(ID3D11Device* device, char* modelFilename, WCHAR* textureFilename)
+bool ModelClass::Initialize(ID3D11Device* device,ID3D11DeviceContext* deviceContext, char* modelFilename, char* textureFilename)
 {
 	bool result;
 
@@ -37,7 +37,7 @@ bool ModelClass::Initialize(ID3D11Device* device, char* modelFilename, WCHAR* te
 	}
 
 	//Load the texture for this model
-	result = loadTexture(device, textureFilename);
+	result = loadTexture(device, deviceContext, textureFilename);
 	if (!result)
 	{
 		return false;
@@ -271,8 +271,43 @@ bool ModelClass::loadModel(char* filename)
 
 	//Set the number of indices to be the same as the vertex count
 	m_indexCount = m_vertexCount;
+
+	//Create the model using the vertex count that was read in
+	m_model = new ModelType[m_vertexCount];
+	if (!m_model)
+	{
+		return false;
+	}
+
+	//Read up to the beginning of the data
+	fin.get(input);
+	while (input != ':')
+	{
+		fin.get(input);
+	}
+	fin.get(input);
+	fin.get(input);
+
+	//Read in the vertex data
+	for (int i = 0; i < m_vertexCount; ++i)
+	{
+		fin >> m_model[i].x >> m_model[i].y >> m_model[i].z;
+		fin >> m_model[i].tu >> m_model[i].tv;
+		fin >> m_model[i].nx >> m_model[i].ny >> m_model[i].nz;
+	}
+
+	//Close the model file
+	fin.close();
+
+	return true;
 }
 void ModelClass::releaseModel()
 {
+	if (m_model)
+	{
+		delete[] m_model;
+		m_model = 0;
+	}
 
+	return;
 }
