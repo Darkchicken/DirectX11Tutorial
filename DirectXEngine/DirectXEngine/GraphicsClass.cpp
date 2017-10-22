@@ -47,7 +47,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 	//Set the initial position of the camera
-	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
+	m_Camera->SetPosition(0.0f, 0.0f, -25.0f);
 
 	//Create the model object
 	m_Model = new ModelClass;
@@ -57,7 +57,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	//Initialize the model object
-	result = m_Model->Initialize(m_D3D->GetDevice(),m_D3D->GetDeviceContext(),"../DirectXEngine/data/cube.txt", "../DirectXEngine/data/stone01.tga");
+	result = m_Model->Initialize(m_D3D->GetDevice(),m_D3D->GetDeviceContext(),"../DirectXEngine/data/model.txt", "../DirectXEngine/data/stone01.tga");
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object", L"Error", MB_OK);
