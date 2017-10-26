@@ -6,6 +6,7 @@
 #include "D3dClass.h"
 #include "CameraClass.h"
 #include "ModelClass.h"
+#include "BitmapClass.h"
 #include "LightShaderClass.h"
 #include "LightClass.h"
 
@@ -35,6 +36,8 @@ private:
 	ModelClass* m_Model;
 	LightShaderClass* m_LightShader;
 	LightClass* m_Light;
+
+	BitmapClass* m_Bitmap;
 
 };
 

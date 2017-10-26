@@ -9,6 +9,7 @@ GraphicsClass::GraphicsClass()
 	m_Model = 0;
 	m_LightShader = 0;
 	m_Light = 0;
+	m_Bitmap = 0;
 }
 
 GraphicsClass::GraphicsClass(const GraphicsClass& other)
@@ -93,10 +94,33 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_Light->SetSpecularPower(32.0f);
 
+	//Create the bitmap object
+	m_Bitmap = new BitmapClass;
+	if (!m_Bitmap)
+	{
+		return false;
+	}
+
+	//Initialize the bitmap object
+	result = m_Bitmap->Initialize(m_D3D->GetDevice(), m_D3D->GetDeviceContext(), screenWidth, screenHeight, "../DirectXEngine/data/stone01.tga", 256, 256);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object", L"Error", MB_OK);
+		return false;
+	}
+
 	return true;
 }
 void GraphicsClass::Shutdown()
 {
+	//Release the bitmap object
+	if (m_Bitmap)
+	{
+		m_Bitmap->Shutdown();
+		delete m_Bitmap;
+		m_Bitmap = 0;
+	}
+
 	//Release the light object
 	if (m_Light)
 	{
@@ -159,7 +183,7 @@ bool GraphicsClass::Frame()
 
 bool GraphicsClass::render(float rotation)
 {
-	XMMATRIX viewMatrix, projectionMatrix, worldMatrix;
+	XMMATRIX viewMatrix, projectionMatrix, worldMatrix, orthoMatrix;
 	bool result;
 
 	//Clear the buffers to begin the scene
@@ -172,6 +196,7 @@ bool GraphicsClass::render(float rotation)
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_D3D->GetWorldMatrix(worldMatrix);
 	m_D3D->GetProjectionMatrix(projectionMatrix);
+	m_D3D->GetOrthoMatrix(orthoMatrix);
 
 	//Rotate the world matrix by the rotation value so that the triangle will spin
 	worldMatrix = XMMatrixRotationY(rotation);
@@ -187,6 +212,31 @@ bool GraphicsClass::render(float rotation)
 	{
 		return false;
 	}
+
+	//Turn off the z buffer to begin all 2D rendering
+	m_D3D->TurnZBufferOff();
+
+	//Put the bitmap vertex and index buffers on the graphics pipeline to prepare them for drawing
+	result = m_Bitmap->Render(m_D3D->GetDeviceContext(), 100, 100);
+	if (!result)
+	{
+		return false;
+	}
+
+	//TODO if your view matrix is changing you will need to create a default one for 2D rendering and use it instead of the regular view matrix. In this tutorial using the regular view matrix is fine as the camera in this tutorial is stationary.
+	//Maybe make a new light just for UI
+
+
+	//REnder the bitmap with the light shader
+	result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Bitmap->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(),
+		m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+	if (!result)
+	{
+		return false;
+	}
+
+	//Turn the z buffer back on now that all 2D rendering has completed
+	m_D3D->TurnZBufferOn();
 
 	//Present the rendered scene to the screen
 	m_D3D->EndScene();
