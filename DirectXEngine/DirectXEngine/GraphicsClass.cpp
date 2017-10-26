@@ -199,7 +199,7 @@ bool GraphicsClass::render(float rotation)
 	m_D3D->GetOrthoMatrix(orthoMatrix);
 
 	//Rotate the world matrix by the rotation value so that the triangle will spin
-	worldMatrix = XMMatrixRotationY(rotation);
+	//worldMatrix = XMMatrixRotationY(rotation);
 
 	//Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing
 	m_Model->Render(m_D3D->GetDeviceContext());
