@@ -94,6 +94,21 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_Light->SetSpecularPower(32.0f);
 
+	//Create the light shader object
+	m_TextureShader = new TextureShaderClass;
+	if (!m_TextureShader)
+	{
+		return false;
+	}
+
+	//Initialize the light shader object
+	result = m_TextureShader->Initialize(m_D3D->GetDevice(), hwnd);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the texture shader object", L"Error", MB_OK);
+		return false;
+	}
+
 	//Create the bitmap object
 	m_Bitmap = new BitmapClass;
 	if (!m_Bitmap)
@@ -135,6 +150,15 @@ void GraphicsClass::Shutdown()
 		delete m_LightShader;
 		m_LightShader = 0;
 	}
+
+	//Release the light shader object
+	if (m_TextureShader)
+	{
+		m_TextureShader->Shutdown();
+		delete m_TextureShader;
+		m_TextureShader = 0;
+	}
+
 
 	//Release the model object
 	if (m_Model)
@@ -227,9 +251,8 @@ bool GraphicsClass::render(float rotation)
 	//Maybe make a new light just for UI
 
 
-	//REnder the bitmap with the light shader
-	result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Bitmap->GetTexture(), XMFLOAT3(1.0f, 0.0f, 0.0f), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(),
-		m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+	//Render the bitmap with the light shader
+	result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Bitmap->GetTexture());
 	if (!result)
 	{
 		return false;

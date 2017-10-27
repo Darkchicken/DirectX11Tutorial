@@ -10,6 +10,8 @@
 #include "LightShaderClass.h"
 #include "LightClass.h"
 
+#include "TextureShaderClass.h"
+
 //Globals
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
@@ -38,6 +40,9 @@ private:
 	LightClass* m_Light;
 
 	BitmapClass* m_Bitmap;
+
+	//For UI
+	TextureShaderClass* m_TextureShader;
 
 };
 
