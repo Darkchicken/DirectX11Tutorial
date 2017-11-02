@@ -34,7 +34,7 @@ public:
 private:
 	bool initializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
 	void shutdownShader();
-	void outputShaderErrorMessage(ID3D10Blob*, HWND, char*);
+	void outputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
 	bool setShaderParameters(ID3D11DeviceContext*, XMMATRIX, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView*, XMFLOAT4);
 	void renderShader(ID3D11DeviceContext*, int);
