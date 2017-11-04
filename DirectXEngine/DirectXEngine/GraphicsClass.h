@@ -11,6 +11,7 @@
 #include "LightClass.h"
 
 #include "TextureShaderClass.h"
+#include "TextClass.h"
 
 //Globals
 const bool FULL_SCREEN = false;
@@ -43,6 +44,8 @@ private:
 
 	//For UI
 	TextureShaderClass* m_TextureShader;
+
+	TextClass* m_Text;
 
 };
 
