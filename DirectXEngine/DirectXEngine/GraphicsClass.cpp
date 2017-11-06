@@ -281,7 +281,7 @@ bool GraphicsClass::render(float rotation)
 	//TODO if your view matrix is changing you will need to create a default one for 2D rendering and use it instead of the regular view matrix. In this tutorial using the regular view matrix is fine as the camera in this tutorial is stationary.
 	//Maybe make a new light just for UI
 
-
+	
 	//Render the bitmap with the light shader
 	result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Bitmap->GetTexture());
 	if (!result)

@@ -142,6 +142,11 @@ bool FontClass::loadFontData(char* filename)
 		{
 			fin.get(temp);
 		}
+		fin.get(temp);
+		while (temp != ' ')
+		{
+			fin.get(temp);
+		}
 		fin >> m_font[i].left;
 		fin >> m_font[i].right;
 		fin >> m_font[i].size;
