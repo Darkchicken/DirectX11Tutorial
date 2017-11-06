@@ -17,9 +17,15 @@ FontClass::~FontClass()
 {
 }
 
-bool FontClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* fontFilename, char* textureFilename)
+bool FontClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* fontFilename, 
+	char* textureFilename, float fontHeight, int spaceSize)
 {
 	bool result;
+
+	//Store the height of the font
+	m_fontHeight = fontHeight;
+	//Store the size of spaces in pixel size
+	m_spaceSize = spaceSize;
 
 	//Load in the text file containing the font data
 	result = loadFontData(fontFilename);
@@ -70,12 +76,12 @@ void FontClass::BuildVertexArray(void* vertices, char* sentence, float drawX, fl
 	//Draw each letter onto a quad
 	for (int i = 0; i < numLetters; ++i)
 	{
-		letter = (int)sentence[i] - 32;
+		letter = ((int)sentence[i]) - 32;
 
 		//If the letter is a space then just move over three pixels
 		if (letter == 0)
 		{
-			drawX = drawX + 3.0f;
+			drawX = drawX + (float)m_spaceSize;
 		}
 		else
 		{
@@ -84,11 +90,11 @@ void FontClass::BuildVertexArray(void* vertices, char* sentence, float drawX, fl
 			vertexPtr[index].texture = XMFLOAT2(m_font[letter].left, 0.0f);
 			index++;
 
-			vertexPtr[index].position = XMFLOAT3((drawX +m_font[letter].size), (drawY - 16), 0.0f); //Bottom right
+			vertexPtr[index].position = XMFLOAT3((drawX +m_font[letter].size), (drawY - m_fontHeight), 0.0f); //Bottom right
 			vertexPtr[index].texture = XMFLOAT2(m_font[letter].right, 1.0f);
 			index++;
 
-			vertexPtr[index].position = XMFLOAT3(drawX, (drawY - 16), 0.0f); //Bottom left
+			vertexPtr[index].position = XMFLOAT3(drawX, (drawY - m_fontHeight), 0.0f); //Bottom left
 			vertexPtr[index].texture = XMFLOAT2(m_font[letter].left, 1.0f);
 			index++;
 
@@ -101,7 +107,7 @@ void FontClass::BuildVertexArray(void* vertices, char* sentence, float drawX, fl
 			vertexPtr[index].texture = XMFLOAT2(m_font[letter].right, 0.0f);
 			index++;
 
-			vertexPtr[index].position = XMFLOAT3((drawX + m_font[letter].size), (drawY - 16), 0.0f); //Bottom right
+			vertexPtr[index].position = XMFLOAT3((drawX + m_font[letter].size), (drawY - m_fontHeight), 0.0f); //Bottom right
 			vertexPtr[index].texture = XMFLOAT2(m_font[letter].right, 1.0f);
 			index++;
 
