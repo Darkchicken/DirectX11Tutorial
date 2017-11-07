@@ -25,9 +25,9 @@ public:
 	TextureShaderClass(const TextureShaderClass&);
 	~TextureShaderClass();
 
-	bool Initialize(ID3D11Device*, HWND);
+	bool Initialize(ID3D11Device*, HWND, XMMATRIX);
 	void Shutdown();
-	bool Render(ID3D11DeviceContext*, int, XMMATRIX, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView*);
+	bool Render(ID3D11DeviceContext*, int, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView*);
 
 private:
 	bool initializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
@@ -43,6 +43,8 @@ private:
 	ID3D11InputLayout* m_layout;
 	ID3D11Buffer* m_matrixBuffer;
 	ID3D11SamplerState* m_sampleState;
+
+	XMMATRIX m_baseViewMatrix;
 };
 #endif // ! _TEXTURESHADERCLASS_H_
 

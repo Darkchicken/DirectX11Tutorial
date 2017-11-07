@@ -20,9 +20,12 @@ TextureShaderClass::~TextureShaderClass()
 {
 }
 
-bool TextureShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
+bool TextureShaderClass::Initialize(ID3D11Device* device, HWND hwnd, XMMATRIX baseViewMatrix)
 {
 	bool result;
+
+	//Store the base view matrix
+	m_baseViewMatrix = baseViewMatrix;
 
 	//Initialize the vertex and pixel shaders
 	result = initializeShader(device, hwnd, L"../DirectXEngine/texture.vs", L"../DirectXEngine/texture.ps");
@@ -40,12 +43,12 @@ void TextureShaderClass::Shutdown()
 	return;
 }
 bool TextureShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, 
-	XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture)
+	XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture)
 {
 	bool result;
 
 	//Set the shader parameters that it will use for rendering
-	result = setShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture);
+	result = setShaderParameters(deviceContext, worldMatrix, m_baseViewMatrix, projectionMatrix, texture);
 	if (!result)
 	{
 		return false;

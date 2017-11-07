@@ -54,12 +54,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	//Initialize a base view matrix with the camera for 2D user interface rendering
-	m_Camera->SetPosition(0.0f, 0.0f, -1.0f);
+	m_Camera->SetPosition(0.0f, 0.0f, -25.0f);
 	m_Camera->Render();
 	m_Camera->GetViewMatrix(baseViewMatrix);
-
-	//Set the initial position of the camera
-	//m_Camera->SetPosition(0.0f, 0.0f, -25.0f);
 
 	//Create the text object
 	m_Text = new TextClass;
@@ -128,7 +125,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	//Initialize the light shader object
-	result = m_TextureShader->Initialize(m_D3D->GetDevice(), hwnd);
+	result = m_TextureShader->Initialize(m_D3D->GetDevice(), hwnd, baseViewMatrix);
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the texture shader object", L"Error", MB_OK);
@@ -296,7 +293,7 @@ bool GraphicsClass::Render()
 
 	
 	//Render the bitmap with the light shader
-	result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Bitmap->GetTexture());
+	result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix,orthoMatrix, m_Bitmap->GetTexture());
 	if (!result)
 	{
 		return false;
