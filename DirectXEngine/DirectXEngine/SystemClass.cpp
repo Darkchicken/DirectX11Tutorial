@@ -31,7 +31,12 @@ bool SystemClass::Initialize()
 	}
 
 	//Initialize the input object
-	m_input->Initialize();
+	result = m_input->Initialize(m_hinstance, m_hwnd, screenWidth, screenHeight);
+	if (!result)
+	{
+		MessageBox(m_hwnd, L"Could not initialize the input object", L"Error", MB_OK);
+		return false;
+	}
 
 	//Create the graphics object to handle rendering
 	m_graphics = new GraphicsClass;
@@ -62,6 +67,7 @@ void SystemClass::Shutdown()
 	//Release the input object
 	if (m_input)
 	{
+		m_input->Shutdown();
 		delete m_input;
 		m_input = 0;
 	}
@@ -97,12 +103,19 @@ void SystemClass::Run()
 		}
 		else
 		{
-			//Otherwise do frame processing
+			//Otherwise do frame processing. If frame processing fails then exit
 			result = Frame();
 			if (!result)
 			{
+				MessageBox(m_hwnd, L"Frame Processing Failed", L"Error", MB_OK);
 				done = true;
 			}
+		}
+
+		//Check if the user pressed escape and wants to quit
+		if (m_input->IsEscapePressed() == true)
+		{
+			done = true;
 		}
 	}
 	return;
@@ -110,48 +123,38 @@ void SystemClass::Run()
 
 LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 {
-	switch (umsg)
-	{
-		//check if a key has been pressed on the keyboard
-		case WM_KEYDOWN:
-		{
-			//If a key is pressed, send it into the input object so it can record that state
-			m_input->KeyDown((unsigned int)wparam);
-			return 0;
-		}
-
-		//check if a key has been released on the keyboard
-		case WM_KEYUP:
-		{
-			//If a key is released, send it to the input object so it can unset the state for that key
-			m_input->KeyUp((unsigned int)wparam);
-			return 0;
-		}
-
-		//Any other messages, send to the default message handler as our application wont make use of them
-		default:
-		{
-			return DefWindowProc(hwnd, umsg, wparam, lparam);
-		}
-	}
+	return DefWindowProc(hwnd, umsg, wparam, lparam);
 }
 
 bool SystemClass::Frame()
 {
 	bool result;
+	int mouseX, mouseY;
 
-	//Check if the user pressed escape to exit
-	if (m_input->IsKeyDown(VK_ESCAPE))
-	{
-		return false;
-	}
-
-	//Do the frame processing for the graphics object
-	result = m_graphics->Frame();
+	//Do the input frame processing
+	result = m_input->Frame();
 	if (!result)
 	{
 		return false;
 	}
+
+	//Get the location of the mouse from the input object
+	m_input->GetMouseLocation(mouseX, mouseY);
+
+	//Do the frame processing for the graphics object
+	result = m_graphics->Frame(mouseX, mouseY);
+	if (!result)
+	{
+		return false;
+	}
+
+	//Finally render the graphics to the screen
+	result = m_graphics->Render();
+	if (!result)
+	{
+		return false;
+	}
+
 	return true;
 }
 void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)

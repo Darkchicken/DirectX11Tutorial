@@ -27,10 +27,8 @@ public:
 
 	bool Initialize(int, int, HWND);
 	void Shutdown();
-	bool Frame();
-
-private:
-	bool render(float);
+	bool Frame(int,int);
+	bool Render();
 
 private:
 	D3DClass* m_D3D;
