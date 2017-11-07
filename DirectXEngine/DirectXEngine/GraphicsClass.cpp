@@ -11,6 +11,9 @@ GraphicsClass::GraphicsClass()
 	m_Light = 0;
 	m_Bitmap = 0;
 	m_Text = 0;
+
+	m_lastMouseX = 0;
+	m_lastMouseY = 0;
 }
 
 GraphicsClass::GraphicsClass(const GraphicsClass& other)
@@ -215,7 +218,7 @@ void GraphicsClass::Shutdown()
 	}
 	return;
 }
-bool GraphicsClass::Frame(int mouseX, int mouseY)
+bool GraphicsClass::Frame(int mouseX, int mouseY, int forwardBackward, int leftRight)
 {
 	bool result;
 	
@@ -227,8 +230,18 @@ bool GraphicsClass::Frame(int mouseX, int mouseY)
 		return false;
 	}
 
+	//Set the rotation of the camera based on the mouse movement
+	XMFLOAT3 cameraRot = m_Camera->GetRotation();
+	cameraRot.y += (m_lastMouseX - mouseX);
+	cameraRot.x += (m_lastMouseY - mouseY);
+	m_lastMouseX = mouseX;
+	m_lastMouseY = mouseY;
+	m_Camera->SetRotation(cameraRot.x, cameraRot.y, cameraRot.z);
+
 	//Set the position of the camera
-	m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
+	XMFLOAT3 cameraPos = m_Camera->GetPosition();
+	m_Camera->SetPosition(cameraPos.x + leftRight, 0.0f, cameraPos.z + forwardBackward);
+	//m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
 
 
 	

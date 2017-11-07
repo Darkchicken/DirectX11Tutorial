@@ -26,8 +26,8 @@ bool InputClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, int
 	m_screenHeight = screenHeight;
 
 	//Initialize the location of the mouse on the screen
-	m_mouseX = 0;
-	m_mouseY = 0;
+	m_mouseX = m_screenWidth/2;
+	m_mouseY = m_screenHeight/2;
 
 	//Initialize the main direct input interface
 	result = DirectInput8Create(hinstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&m_directInput, NULL);
@@ -155,6 +155,34 @@ bool InputClass::IsEscapePressed()
 
 	return false;
 }
+
+int InputClass::IsForwardBackward()
+{
+	if (m_keyboardState[DIK_W] & 0x80)
+	{
+		return 1;
+	}
+	else if (m_keyboardState[DIK_S] & 0x80)
+	{
+		return -1;
+	}
+
+	return 0;
+}
+int InputClass::IsLeftRight()
+{
+	if (m_keyboardState[DIK_D] & 0x80)
+	{
+		return 1;
+	}
+	else if (m_keyboardState[DIK_A] & 0x80)
+	{
+		return -1;
+	}
+
+	return 0;
+}
+
 void InputClass::GetMouseLocation(int& mouseX, int& mouseY)
 {
 	mouseX = m_mouseX;

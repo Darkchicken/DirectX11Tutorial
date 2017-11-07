@@ -142,7 +142,7 @@ bool SystemClass::Frame()
 	m_input->GetMouseLocation(mouseX, mouseY);
 
 	//Do the frame processing for the graphics object
-	result = m_graphics->Frame(mouseX, mouseY);
+	result = m_graphics->Frame(mouseX, mouseY, m_input->IsForwardBackward(), m_input->IsLeftRight());
 	if (!result)
 	{
 		return false;

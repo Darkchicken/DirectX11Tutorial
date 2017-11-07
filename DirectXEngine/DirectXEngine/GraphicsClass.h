@@ -27,7 +27,7 @@ public:
 
 	bool Initialize(int, int, HWND);
 	void Shutdown();
-	bool Frame(int,int);
+	bool Frame(int,int, int, int);
 	bool Render();
 
 private:
@@ -44,6 +44,9 @@ private:
 	TextureShaderClass* m_TextureShader;
 
 	TextClass* m_Text;
+
+	//Holds last moust pos
+	float m_lastMouseX, m_lastMouseY;
 
 };
 
