@@ -10,6 +10,7 @@
 
 #include "InputClass.h"
 #include "GraphicsClass.h"
+#include "SoundClass.h"
 class SystemClass
 {
 public:
@@ -35,6 +36,7 @@ private:
 
 	InputClass* m_input;
 	GraphicsClass* m_graphics;
+	SoundClass* m_sound;
 
 };
 
