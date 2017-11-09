@@ -215,24 +215,31 @@ void GraphicsClass::Shutdown()
 	}
 	return;
 }
-bool GraphicsClass::Frame(int mouseX, int mouseY, int forwardBackward, int leftRight)
+bool GraphicsClass::Frame(int fps, int cpu, float frameTime, int mouseX, int mouseY, int forwardBackward, int leftRight)
 {
 	bool result;
-	
 
-	//Set the location of the mouse
-	result = m_Text->SetMousePosition(mouseX, mouseY, m_D3D->GetDeviceContext());
+	//Set the frames per second
+	result = m_Text->SetFps(fps, m_D3D->GetDeviceContext());
 	if (!result)
 	{
 		return false;
 	}
 
+	//Set the cpu usage
+	result = m_Text->SetCpu(cpu, m_D3D->GetDeviceContext());
+	if (!result)
+	{
+		return false;
+	}
+
+
 	//Set the rotation of the camera based on the mouse movement
 	XMFLOAT3 cameraRot = m_Camera->GetRotation();
 	cameraRot.y += (m_lastMouseX - mouseX);
 	cameraRot.x += (m_lastMouseY - mouseY);
-	m_lastMouseX = mouseX;
-	m_lastMouseY = mouseY;
+	m_lastMouseX = (float)mouseX;
+	m_lastMouseY = (float)mouseY;
 	m_Camera->SetRotation(cameraRot.x, cameraRot.y, cameraRot.z);
 
 	//Set the position of the camera

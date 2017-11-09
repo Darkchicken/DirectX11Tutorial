@@ -6,6 +6,9 @@ SystemClass::SystemClass()
 	m_input = 0;
 	m_graphics = 0;
 	m_sound = 0;
+	m_fps = 0;
+	m_cpu = 0;
+	m_timer = 0;
 }
 
 SystemClass::SystemClass(const SystemClass&)
@@ -68,10 +71,67 @@ bool SystemClass::Initialize()
 		return false;
 	}
 
+	//Create the fps object
+	m_fps = new FpsClass;
+	if (!m_fps)
+	{
+		return false;
+	}
+
+	//Initialize the fps object
+	m_fps->Initialize();
+
+	//Create the cpu object
+	m_cpu = new CpuClass;
+	if (!m_cpu)
+	{
+		return false;
+	}
+
+	//Initialize the cpu object
+	m_cpu->Initialize();
+
+	//Create the timer object
+	m_timer = new TimerClass;
+	if (!m_timer)
+	{
+		return false;
+	}
+
+	//Initialize the timer object
+	result = m_timer->Initialize();
+	if (!result)
+	{
+		MessageBox(m_hwnd, L"Could not initialize the Timer object", L"Error", MB_OK);
+		return false;
+	}
+
 	return true;
 }
 void SystemClass::Shutdown()
 {
+	//Release the timer object
+	if (m_timer)
+	{
+		delete m_timer;
+		m_timer = 0;
+	}
+
+	//Release the cpu object
+	if (m_cpu)
+	{
+		m_cpu->Shutdown();
+		delete m_cpu;
+		m_cpu = 0;
+	}
+
+	//Release the fps object
+	if (m_fps)
+	{
+		delete m_fps;
+		m_fps = 0;
+	}
+
 	//Release the sound object
 	if (m_sound)
 	{
@@ -155,6 +215,11 @@ bool SystemClass::Frame()
 	bool result;
 	int mouseX, mouseY;
 
+	//Update the system stats
+	m_timer->Frame();
+	m_fps->Frame();
+	m_cpu->Frame();
+
 	//Do the input frame processing
 	result = m_input->Frame();
 	if (!result)
@@ -166,7 +231,7 @@ bool SystemClass::Frame()
 	m_input->GetMouseLocation(mouseX, mouseY);
 
 	//Do the frame processing for the graphics object
-	result = m_graphics->Frame(mouseX, mouseY, m_input->IsForwardBackward(), m_input->IsLeftRight());
+	result = m_graphics->Frame(m_fps->GetFps(), m_cpu->GetCpuPercentage(), m_timer->GetTime(), mouseX, mouseY, m_input->IsForwardBackward(), m_input->IsLeftRight());
 	if (!result)
 	{
 		return false;

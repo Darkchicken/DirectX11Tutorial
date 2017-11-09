@@ -11,6 +11,10 @@
 #include "InputClass.h"
 #include "GraphicsClass.h"
 #include "SoundClass.h"
+#include "FpsClass.h"
+#include "CpuClass.h"
+#include "TimerClass.h"
+
 class SystemClass
 {
 public:
@@ -37,6 +41,9 @@ private:
 	InputClass* m_input;
 	GraphicsClass* m_graphics;
 	SoundClass* m_sound;
+	FpsClass* m_fps;
+	CpuClass* m_cpu;
+	TimerClass* m_timer;
 
 };
 
