@@ -9,6 +9,7 @@
 #include "BitmapClass.h"
 #include "LightShaderClass.h"
 #include "LightClass.h"
+#include "FrustrumClass.h"
 
 #include "TextureShaderClass.h"
 #include "TextClass.h"
