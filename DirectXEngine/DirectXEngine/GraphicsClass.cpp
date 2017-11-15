@@ -339,7 +339,7 @@ bool GraphicsClass::Render()
 
 			//Render the model using the light shader
 			result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(),
-				worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(),
+				worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(), m_Light->GetDirection(), /*m_Light->GetAmbientColor()*/ color, m_Light->GetDiffuseColor(),
 				m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
 
 			//Reset to the original world matrix

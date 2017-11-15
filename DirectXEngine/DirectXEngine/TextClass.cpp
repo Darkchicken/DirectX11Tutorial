@@ -253,7 +253,7 @@ bool TextClass::SetRenderCount(int renderCount, ID3D11DeviceContext* deviceConte
 	_itoa_s(renderCount, tempString, 10);
 
 	//Setup the cpu string
-	strcpy_s(renderString, "Render Count: ");
+	strcpy_s(renderString, "Render: ");
 	strcat_s(renderString, tempString);
 
 	//Update the sentence vertex buffer with the new string information
