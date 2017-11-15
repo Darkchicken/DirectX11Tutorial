@@ -8,6 +8,7 @@ TextClass::TextClass()
 	m_fontShader = 0;
 	m_sentence1 = 0;
 	m_sentence2 = 0;
+	m_sentence3 = 0;
 }
 
 TextClass::TextClass(const TextClass& other)
@@ -89,6 +90,20 @@ bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCont
 		return false;
 	}
 
+	//Initialize the third sentence
+	result = initializeSentence(&m_sentence3, 16, device);
+	if (!result)
+	{
+		return false;
+	}
+
+	//Now update the third vertex buffer with the new string information
+	result = updateSentence(m_sentence3, "Whee", 100, 300, 1.0f, 1.0f, 0.0f, deviceContext);
+	if (!result)
+	{
+		return false;
+	}
+
 	return true;
 }
 void TextClass::Shutdown()
@@ -98,6 +113,9 @@ void TextClass::Shutdown()
 
 	//Release the second sentence
 	releaseSentence(&m_sentence2);
+
+	//Release the third sentence
+	releaseSentence(&m_sentence3);
 
 	//Release the font shader object
 	if (m_fontShader)
@@ -130,6 +148,13 @@ bool TextClass::Render(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix,
 
 	//Draw the second sentence
 	result = renderSentence(deviceContext, m_sentence2, worldMatrix, orthoMatrix);
+	if (!result)
+	{
+		return false;
+	}
+
+	//Draw the third sentence
+	result = renderSentence(deviceContext, m_sentence3, worldMatrix, orthoMatrix);
 	if (!result)
 	{
 		return false;
@@ -209,6 +234,30 @@ bool TextClass::SetCpu(int cpu, ID3D11DeviceContext* deviceContext)
 
 	//Update the sentence vertex buffer with the new string information
 	result = updateSentence(m_sentence2, cpuString, 20, 40, 0.0f, 1.0f, 0.0f, deviceContext);
+	if (!result)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool TextClass::SetRenderCount(int renderCount, ID3D11DeviceContext* deviceContext)
+{
+	char tempString[16];
+	char renderString[16];
+	bool result;
+
+
+	//Convert the cpu integer to string format
+	_itoa_s(renderCount, tempString, 10);
+
+	//Setup the cpu string
+	strcpy_s(renderString, "Render Count: ");
+	strcat_s(renderString, tempString);
+
+	//Update the sentence vertex buffer with the new string information
+	result = updateSentence(m_sentence3, renderString, 20, 60, 0.0f, 1.0f, 0.0f, deviceContext);
 	if (!result)
 	{
 		return false;

@@ -10,6 +10,7 @@
 #include "LightShaderClass.h"
 #include "LightClass.h"
 #include "FrustrumClass.h"
+#include "ModelListClass.h"
 
 #include "TextureShaderClass.h"
 #include "TextClass.h"
@@ -19,6 +20,7 @@ const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
+
 class GraphicsClass
 {
 public:
@@ -28,7 +30,7 @@ public:
 
 	bool Initialize(int, int, HWND);
 	void Shutdown();
-	bool Frame(int, int, float, int,int, int, int);
+	bool Frame(int, int, float, float, float, int, int);
 	bool Render();
 
 private:
@@ -38,6 +40,8 @@ private:
 	ModelClass* m_Model;
 	LightShaderClass* m_LightShader;
 	LightClass* m_Light;
+	ModelListClass* m_ModelList;
+	FrustrumClass* m_Frustrum;
 
 	BitmapClass* m_Bitmap;
 

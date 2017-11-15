@@ -11,6 +11,8 @@ GraphicsClass::GraphicsClass()
 	m_Light = 0;
 	m_Bitmap = 0;
 	m_Text = 0;
+	m_ModelList = 0;
+	m_Frustrum = 0;
 
 	m_lastMouseX = 0;
 	m_lastMouseY = 0;
@@ -81,7 +83,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	//Initialize the model object
-	result = m_Model->Initialize(m_D3D->GetDevice(),m_D3D->GetDeviceContext(),"../DirectXEngine/data/model.txt", "../DirectXEngine/data/stone01.tga");
+	result = m_Model->Initialize(m_D3D->GetDevice(),m_D3D->GetDeviceContext(), "../DirectXEngine/data/sphere.txt"/*"../DirectXEngine/data/model.txt"*/, "../DirectXEngine/data/stone01.tga");
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object", L"Error", MB_OK);
@@ -132,6 +134,31 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
+	//Create the model list object
+	m_ModelList = new ModelListClass;
+	if (!m_ModelList)
+	{
+		return false;
+	}
+
+	//Initialize the model list object
+	result = m_ModelList->Initialize(25);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the model list object", L"Error", MB_OK);
+		return false;
+	}
+
+	//Create the frustrum object
+	m_Frustrum = new FrustrumClass;
+	if (!m_Frustrum)
+	{
+		return false;
+	}
+
+	//Initialize the frustrum object
+	m_Frustrum->Initialize(SCREEN_DEPTH);
+
 	//Create the bitmap object
 	m_Bitmap = new BitmapClass;
 	if (!m_Bitmap)
@@ -165,6 +192,21 @@ void GraphicsClass::Shutdown()
 		m_Bitmap->Shutdown();
 		delete m_Bitmap;
 		m_Bitmap = 0;
+	}
+
+	//Release the frustrum object
+	if (m_Frustrum)
+	{
+		delete m_Frustrum;
+		m_Frustrum = 0;
+	}
+
+	//Release the model list object
+	if (m_ModelList)
+	{
+		m_ModelList->Shutdown();
+		delete m_ModelList;
+		m_ModelList = 0;
 	}
 
 	//Release the light object
@@ -215,7 +257,7 @@ void GraphicsClass::Shutdown()
 	}
 	return;
 }
-bool GraphicsClass::Frame(int fps, int cpu, float frameTime, int mouseX, int mouseY, int forwardBackward, int leftRight)
+bool GraphicsClass::Frame(int fps, int cpu, float frameTime, float rotationX, float rotationY, int forwardBackward, int leftRight)
 {
 	bool result;
 
@@ -234,29 +276,24 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime, int mouseX, int mou
 	}
 
 
-	//Set the rotation of the camera based on the mouse movement
-	XMFLOAT3 cameraRot = m_Camera->GetRotation();
-	cameraRot.y += (m_lastMouseX - mouseX);
-	cameraRot.x += (m_lastMouseY - mouseY);
-	m_lastMouseX = (float)mouseX;
-	m_lastMouseY = (float)mouseY;
-	m_Camera->SetRotation(cameraRot.x, cameraRot.y, cameraRot.z);
+	//Set the rotation of the camera
+	m_Camera->SetRotation(rotationX, rotationY, 0.0f);
 
 	//Set the position of the camera
 	XMFLOAT3 cameraPos = m_Camera->GetPosition();
 	m_Camera->SetPosition(cameraPos.x + leftRight, 0.0f, cameraPos.z + forwardBackward);
 	//m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
 
-
-	
-	
 	return true;
 }
 
 bool GraphicsClass::Render()
 {
 	XMMATRIX viewMatrix, projectionMatrix, worldMatrix, orthoMatrix;
-	bool result;
+	int modelCount, renderCount, index;
+	float positionX, positionY, positionZ, radius;
+	XMFLOAT4 color;
+	bool renderModel, result;
 
 	//Clear the buffers to begin the scene
 	m_D3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
@@ -270,20 +307,56 @@ bool GraphicsClass::Render()
 	m_D3D->GetProjectionMatrix(projectionMatrix);
 	m_D3D->GetOrthoMatrix(orthoMatrix);
 
-	//Rotate the world matrix by the rotation value so that the triangle will spin
-	//worldMatrix = XMMatrixRotationY(rotation);
+	//Construct the frustrum
+	m_Frustrum->ConstructFrustrum(projectionMatrix, viewMatrix);
 
-	//Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing
-	m_Model->Render(m_D3D->GetDeviceContext());
+	//Get the number of models that will be rendered
+	modelCount = m_ModelList->GetModelCount();
 
-	//Render the model using the light shader
-	result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(),
-		worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture() , m_Light->GetDirection(),m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(),
-		m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+	//Initialize the count of models that have been rendered
+	renderCount = 0;
+
+	//Go through all the models and render them only if they can be seen by the camera view
+	for (index = 0; index < modelCount; ++index)
+	{
+		//Get the position and color of the sphere model at this index
+		m_ModelList->GetData(index, positionX, positionY, positionZ, color);
+
+		//Set the radius of the sphere to 1.0 since this is already known
+		radius = 1.0f;
+
+		//Check if the sphere model is in the view frustrum
+		renderModel = m_Frustrum->CheckSphere(positionX, positionY, positionZ, radius);
+
+		//If it can be see then render it, if not skip this model and check the next sphere
+		if (renderModel)
+		{
+			//Move the model to the location it should be rendered at
+			worldMatrix = XMMatrixTranslation(positionX, positionY, positionZ);
+
+			//Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing
+			m_Model->Render(m_D3D->GetDeviceContext());
+
+			//Render the model using the light shader
+			result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(),
+				worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(),
+				m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+
+			//Reset to the original world matrix
+			m_D3D->GetWorldMatrix(worldMatrix);
+
+			//Since this model was rendered, then increase the count for this frame
+			renderCount++;
+		}
+	}
+
+	//Set the number of models that was actually rendered this frame
+	result = m_Text->SetRenderCount(renderCount, m_D3D->GetDeviceContext());
 	if (!result)
 	{
 		return false;
 	}
+
 
 	//Turn off the z buffer to begin all 2D rendering
 	m_D3D->TurnZBufferOff();

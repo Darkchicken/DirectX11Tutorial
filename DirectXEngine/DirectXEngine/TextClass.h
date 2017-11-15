@@ -30,6 +30,7 @@ public:
 	bool Render(ID3D11DeviceContext*, XMMATRIX, XMMATRIX);
 	bool SetFps(int, ID3D11DeviceContext*);
 	bool SetCpu(int, ID3D11DeviceContext*);
+	bool SetRenderCount(int, ID3D11DeviceContext*);
 
 private:
 	bool initializeSentence(SentenceType**, int, ID3D11Device*);
@@ -45,6 +46,7 @@ private:
 
 	SentenceType* m_sentence1;
 	SentenceType* m_sentence2;
+	SentenceType* m_sentence3;
 };
 #endif
 

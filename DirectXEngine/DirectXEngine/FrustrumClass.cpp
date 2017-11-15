@@ -142,16 +142,138 @@ bool FrustrumClass::CheckPoint(float x, float y, float z)
 	}
 	return true;
 }
-bool FrustrumClass::CheckCube(float, float, float, float)
+bool FrustrumClass::CheckCube(float xCenter, float yCenter, float zCenter, float radius)
 {
+	float dotProduct;
 
+	//Check each of the siz planes to see if the cube is inside the frustrum
+	for (int i = 0; i < 6; ++i)
+	{
+		//Check all eight points of the cube to see if they all reside within the frustrum
+		dotProduct = (m_planes[i][0] * (xCenter - radius)) + (m_planes[i][1] * (yCenter - radius)) + (m_planes[i][2] * (zCenter - radius)) + (m_planes[i][3] * 1.0f);
+		if(dotProduct > 0.0f)
+		{
+			continue;
+		}
+
+		dotProduct = (m_planes[i][0] * (xCenter + radius)) + (m_planes[i][1] * (yCenter - radius)) + (m_planes[i][2] * (zCenter - radius)) + (m_planes[i][3] * 1.0f);
+		if (dotProduct > 0.0f)
+		{
+			continue;
+		}
+
+		dotProduct = (m_planes[i][0] * (xCenter - radius)) + (m_planes[i][1] * (yCenter + radius)) + (m_planes[i][2] * (zCenter - radius)) + (m_planes[i][3] * 1.0f);
+		if (dotProduct > 0.0f)
+		{
+			continue;
+		}
+
+		dotProduct = (m_planes[i][0] * (xCenter + radius)) + (m_planes[i][1] * (yCenter + radius)) + (m_planes[i][2] * (zCenter - radius)) + (m_planes[i][3] * 1.0f);
+		if (dotProduct > 0.0f)
+		{
+			continue;
+		}
+
+		dotProduct = (m_planes[i][0] * (xCenter - radius)) + (m_planes[i][1] * (yCenter - radius)) + (m_planes[i][2] * (zCenter + radius)) + (m_planes[i][3] * 1.0f);
+		if (dotProduct > 0.0f)
+		{
+			continue;
+		}
+
+		dotProduct = (m_planes[i][0] * (xCenter + radius)) + (m_planes[i][1] * (yCenter - radius)) + (m_planes[i][2] * (zCenter + radius)) + (m_planes[i][3] * 1.0f);
+		if (dotProduct > 0.0f)
+		{
+			continue;
+		}
+
+		dotProduct = (m_planes[i][0] * (xCenter - radius)) + (m_planes[i][1] * (yCenter + radius)) + (m_planes[i][2] * (zCenter + radius)) + (m_planes[i][3] * 1.0f);
+		if (dotProduct > 0.0f)
+		{
+			continue;
+		}
+
+		dotProduct = (m_planes[i][0] * (xCenter + radius)) + (m_planes[i][1] * (yCenter + radius)) + (m_planes[i][2] * (zCenter + radius)) + (m_planes[i][3] * 1.0f);
+		if (dotProduct > 0.0f)
+		{
+			continue;
+		}
+
+		return false;
+	}
 	return true;
 }
-bool FrustrumClass::CheckSphere(float, float, float, float)
+bool FrustrumClass::CheckSphere(float xCenter, float yCenter, float zCenter, float radius)
 {
+	float dotProduct;
+
+	//Check the six planes to see if the sphere is inside them or not
+	for (int i = 0; i < 6; ++i)
+	{
+		dotProduct = ((m_planes[i][0] * xCenter) + (m_planes[i][1] * yCenter) + (m_planes[i][2] * zCenter) + (m_planes[i][3] * 1.0f));
+		if (dotProduct <= -radius)
+		{
+			return false;
+		}
+	}
 	return true;
 }
-bool FrustrumClass::CheckRectangle(float, float, float, float, float, float)
+bool FrustrumClass::CheckRectangle(float xCenter, float yCenter, float zCenter, float xSize, float ySize, float zSize)
 {
+	float dotProduct;
+
+	//Check each of the siz planes to see if the rectangle is inside the frustrum
+	for (int i = 0; i < 6; ++i)
+	{
+		//Check all eight points of the cube to see if they all reside within the frustrum
+		dotProduct = (m_planes[i][0] * (xCenter - xSize)) + (m_planes[i][1] * (yCenter - ySize)) + (m_planes[i][2] * (zCenter - zSize)) + (m_planes[i][3] * 1.0f);
+		if (dotProduct > 0.0f)
+		{
+			continue;
+		}
+
+		dotProduct = (m_planes[i][0] * (xCenter + xSize)) + (m_planes[i][1] * (yCenter - ySize)) + (m_planes[i][2] * (zCenter - zSize)) + (m_planes[i][3] * 1.0f);
+		if (dotProduct > 0.0f)
+		{
+			continue;
+		}
+
+		dotProduct = (m_planes[i][0] * (xCenter - xSize)) + (m_planes[i][1] * (yCenter + ySize)) + (m_planes[i][2] * (zCenter - zSize)) + (m_planes[i][3] * 1.0f);
+		if (dotProduct > 0.0f)
+		{
+			continue;
+		}
+
+		dotProduct = (m_planes[i][0] * (xCenter + xSize)) + (m_planes[i][1] * (yCenter + ySize)) + (m_planes[i][2] * (zCenter - zSize)) + (m_planes[i][3] * 1.0f);
+		if (dotProduct > 0.0f)
+		{
+			continue;
+		}
+
+		dotProduct = (m_planes[i][0] * (xCenter - xSize)) + (m_planes[i][1] * (yCenter - ySize)) + (m_planes[i][2] * (zCenter + zSize)) + (m_planes[i][3] * 1.0f);
+		if (dotProduct > 0.0f)
+		{
+			continue;
+		}
+
+		dotProduct = (m_planes[i][0] * (xCenter + xSize)) + (m_planes[i][1] * (yCenter - ySize)) + (m_planes[i][2] * (zCenter + zSize)) + (m_planes[i][3] * 1.0f);
+		if (dotProduct > 0.0f)
+		{
+			continue;
+		}
+
+		dotProduct = (m_planes[i][0] * (xCenter - xSize)) + (m_planes[i][1] * (yCenter + ySize)) + (m_planes[i][2] * (zCenter + zSize)) + (m_planes[i][3] * 1.0f);
+		if (dotProduct > 0.0f)
+		{
+			continue;
+		}
+
+		dotProduct = (m_planes[i][0] * (xCenter + xSize)) + (m_planes[i][1] * (yCenter + ySize)) + (m_planes[i][2] * (zCenter + zSize)) + (m_planes[i][3] * 1.0f);
+		if (dotProduct > 0.0f)
+		{
+			continue;
+		}
+
+		return false;
+	}
 	return true;
 }
