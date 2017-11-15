@@ -14,6 +14,7 @@
 #include "FpsClass.h"
 #include "CpuClass.h"
 #include "TimerClass.h"
+#include "PositionClass.h"
 
 class SystemClass
 {
@@ -44,6 +45,7 @@ private:
 	FpsClass* m_fps;
 	CpuClass* m_cpu;
 	TimerClass* m_timer;
+	PositionClass* m_position;
 
 };
 

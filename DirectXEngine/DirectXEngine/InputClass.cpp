@@ -156,6 +156,27 @@ bool InputClass::IsEscapePressed()
 	return false;
 }
 
+bool InputClass::IsQPressed()
+{
+	//Do a bitwise and on the keyboard state to check if the escape key is currently being pressed
+	if (m_keyboardState[DIK_Q] & 0x80)
+	{
+		return true;
+	}
+
+	return false;
+}
+bool InputClass::IsEPressed()
+{
+	//Do a bitwise and on the keyboard state to check if the escape key is currently being pressed
+	if (m_keyboardState[DIK_E] & 0x80)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 int InputClass::IsForwardBackward()
 {
 	if (m_keyboardState[DIK_W] & 0x80)
