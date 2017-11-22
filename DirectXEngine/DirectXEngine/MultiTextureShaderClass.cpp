@@ -24,7 +24,7 @@ bool MultiTextureShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 	bool result;
 
 	//Initialize the vertex and pixel shaders
-	result = initializeShader(device, hwnd, L"../DirectXEngine/mulltitexture.vs", L"../DirectXEngine/multitexture.ps");
+	result = initializeShader(device, hwnd, L"../DirectXEngine/multitexture.vs", L"../DirectXEngine/multitexture.ps");
 	if (!result)
 	{
 		return false;

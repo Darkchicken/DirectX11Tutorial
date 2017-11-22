@@ -13,6 +13,8 @@ GraphicsClass::GraphicsClass()
 	m_Text = 0;
 	m_ModelList = 0;
 	m_Frustrum = 0;
+	m_TextureShader = 0;
+	m_MultiTextureShader = 0;
 
 	m_lastMouseX = 0;
 	m_lastMouseY = 0;
@@ -83,7 +85,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	//Initialize the model object
-	result = m_Model->Initialize(m_D3D->GetDevice(),m_D3D->GetDeviceContext(), "../DirectXEngine/data/sphere.txt"/*"../DirectXEngine/data/model.txt"*/, "../DirectXEngine/data/stone01.tga");
+	result = m_Model->Initialize(m_D3D->GetDevice(),m_D3D->GetDeviceContext(), "../DirectXEngine/data/square.txt"/*"../DirectXEngine/data/sphere.txt" */ /*"../DirectXEngine/data/model.txt"*/,
+		"../DirectXEngine/data/stone01.tga", "../DirectXEngine/data/dirt01.tga");
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object", L"Error", MB_OK);
@@ -119,18 +122,33 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_Light->SetSpecularPower(32.0f);
 
-	//Create the light shader object
+	//Create the multi texture shader object
 	m_TextureShader = new TextureShaderClass;
 	if (!m_TextureShader)
 	{
 		return false;
 	}
 
-	//Initialize the light shader object
+	//Initialize the multi texture shader object
 	result = m_TextureShader->Initialize(m_D3D->GetDevice(), hwnd, baseViewMatrix);
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the texture shader object", L"Error", MB_OK);
+		return false;
+	}
+
+	//Create the multi texture shader object
+	m_MultiTextureShader = new MultiTextureShaderClass;
+	if (!m_MultiTextureShader)
+	{
+		return false;
+	}
+
+	//Initialize the multi texture shader object
+	result = m_MultiTextureShader->Initialize(m_D3D->GetDevice(), hwnd);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the multitexture shader object", L"Error", MB_OK);
 		return false;
 	}
 
@@ -224,12 +242,20 @@ void GraphicsClass::Shutdown()
 		m_LightShader = 0;
 	}
 
-	//Release the light shader object
+	//Release the texture shader object
 	if (m_TextureShader)
 	{
 		m_TextureShader->Shutdown();
 		delete m_TextureShader;
 		m_TextureShader = 0;
+	}
+
+	//Release the multitexture shader object
+	if (m_MultiTextureShader)
+	{
+		m_MultiTextureShader->Shutdown();
+		delete m_MultiTextureShader;
+		m_MultiTextureShader = 0;
 	}
 
 
@@ -337,10 +363,15 @@ bool GraphicsClass::Render()
 			//Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing
 			m_Model->Render(m_D3D->GetDeviceContext());
 
+			
 			//Render the model using the light shader
-			result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(),
-				worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(), m_Light->GetDirection(), /*m_Light->GetAmbientColor()*/ color, m_Light->GetDiffuseColor(),
-				m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+			//result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(),
+			//	worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(), m_Light->GetDirection(), /*m_Light->GetAmbientColor()*/ color, m_Light->GetDiffuseColor(),
+			//	m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+
+			result = m_MultiTextureShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(),
+				worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTextureArray());
+				
 
 			//Reset to the original world matrix
 			m_D3D->GetWorldMatrix(worldMatrix);

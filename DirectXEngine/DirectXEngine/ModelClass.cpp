@@ -6,7 +6,8 @@ ModelClass::ModelClass()
 {
 	m_vertexBuffer = 0;
 	m_indexBuffer = 0;
-	m_texture = 0;
+	//m_texture = 0;
+	m_textureArray = 0;
 	m_model = 0;
 }
 
@@ -18,7 +19,7 @@ ModelClass::~ModelClass()
 {
 }
 
-bool ModelClass::Initialize(ID3D11Device* device,ID3D11DeviceContext* deviceContext, char* modelFilename, char* textureFilename)
+bool ModelClass::Initialize(ID3D11Device* device,ID3D11DeviceContext* deviceContext, char* modelFilename, char* textureFilename1, char* textureFilename2)
 {
 	bool result;
 
@@ -37,7 +38,7 @@ bool ModelClass::Initialize(ID3D11Device* device,ID3D11DeviceContext* deviceCont
 	}
 
 	//Load the texture for this model
-	result = loadTexture(device, deviceContext, textureFilename);
+	result = loadTexture(device, deviceContext, textureFilename1, textureFilename2);
 	if (!result)
 	{
 		return false;
@@ -71,9 +72,9 @@ int ModelClass::GetIndexCount()
 }
 
 
-ID3D11ShaderResourceView* ModelClass::GetTexture()
+ID3D11ShaderResourceView** ModelClass::GetTextureArray()
 {
-	return m_texture->GetTexture();
+	return m_textureArray->GetTextureArray();
 }
 
 bool ModelClass::initializeBuffers(ID3D11Device* device)
@@ -196,19 +197,19 @@ void ModelClass::renderBuffers(ID3D11DeviceContext* deviceContext)
 	return;
 }
 
-bool ModelClass::loadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* filename)
+bool ModelClass::loadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* filename1, char* filename2)
 {
 	bool result;
 
-	//Create the texture object
-	m_texture = new TextureClass;
-	if (!m_texture)
+	//Create the texture array object
+	m_textureArray = new TextureArrayClass;
+	if (!m_textureArray)
 	{
 		return false;
 	}
 
 	//Initialize the texture object
-	result = m_texture->Initialize(device, deviceContext, filename);
+	result = m_textureArray->Initialize(device, deviceContext, filename1, filename2);
 	if (!result)
 	{
 		return false;
@@ -219,12 +220,14 @@ bool ModelClass::loadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceCo
 void ModelClass::releaseTexture()
 {
 	//Release the texture object
-	if (m_texture)
+	if (m_textureArray)
 	{
-		m_texture->Shutdown();
-		delete m_texture;
-		m_texture = 0;
+		m_textureArray->Shutdown();
+		delete m_textureArray;
+		m_textureArray = 0;
 	}
+
+	return;
 }
 
 bool ModelClass::loadModel(char* filename)

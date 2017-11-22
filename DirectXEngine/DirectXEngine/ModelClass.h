@@ -8,7 +8,8 @@
 #include <fstream>
 
 //class includes 
-#include "TextureClass.h"
+//#include "TextureClass.h"
+#include "TextureArrayClass.h"
 
 using namespace DirectX;
 
@@ -33,20 +34,20 @@ public:
 	ModelClass(const ModelClass&);
 	~ModelClass();
 
-	bool Initialize(ID3D11Device*,ID3D11DeviceContext*, char*, char*);
+	bool Initialize(ID3D11Device*,ID3D11DeviceContext*, char*, char*, char*);
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
 
 	int GetIndexCount();
 
-	ID3D11ShaderResourceView* GetTexture();
+	ID3D11ShaderResourceView** GetTextureArray();
 
 private:
 	bool initializeBuffers(ID3D11Device*);
 	void shutdownBuffers();
 	void renderBuffers(ID3D11DeviceContext*);
 
-	bool loadTexture(ID3D11Device*, ID3D11DeviceContext*, char*);
+	bool loadTexture(ID3D11Device*, ID3D11DeviceContext*, char*, char*);
 	void releaseTexture();
 
 	bool loadModel(char*);
@@ -56,7 +57,8 @@ private:
 	ID3D11Buffer *m_vertexBuffer, *m_indexBuffer;
 	int m_vertexCount, m_indexCount;
 
-	TextureClass* m_texture;
+	//TextureClass* m_texture;
+	TextureArrayClass* m_textureArray;
 	ModelType* m_model;
 };
 

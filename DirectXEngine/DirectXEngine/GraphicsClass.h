@@ -13,6 +13,7 @@
 #include "ModelListClass.h"
 
 #include "TextureShaderClass.h"
+#include "MultiTextureShaderClass.h"
 #include "TextClass.h"
 
 //Globals
@@ -46,6 +47,7 @@ private:
 	BitmapClass* m_Bitmap;
 
 	//For UI
+	MultiTextureShaderClass* m_MultiTextureShader;
 	TextureShaderClass* m_TextureShader;
 
 	TextClass* m_Text;
