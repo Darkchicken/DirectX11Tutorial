@@ -8,6 +8,7 @@ TextureArrayClass::TextureArrayClass()
 	m_texture = 0;
 	m_textures[0] = 0;
 	m_textures[1] = 0;
+	m_textures[2] = 0;
 }
 
 TextureArrayClass::TextureArrayClass(const TextureArrayClass& other)
@@ -19,7 +20,7 @@ TextureArrayClass::~TextureArrayClass()
 }
 
 bool TextureArrayClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, 
-	char* fileName1, char* fileName2)
+	char* fileName1, char* fileName2, char* fileName3)
 {
 	bool result;
 	int height, width;
@@ -114,6 +115,43 @@ bool TextureArrayClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* de
 	//Generate the mipmaps for this texture
 	deviceContext->GenerateMips(m_textures[1]);
 
+	//////////////
+	//Texture 3//
+	//////////////
+
+	//Load the targa image data into memory
+	result = LoadTarga(fileName3, height, width);
+	if (!result)
+	{
+		return false;
+	}
+
+	textureDesc.Height = height;
+	textureDesc.Width = width;
+
+	//Create the empty texture
+	hResult = device->CreateTexture2D(&textureDesc, NULL, &m_texture);
+	if (FAILED(hResult))
+	{
+		return false;
+	}
+
+	//Set the row pitch of the targa image data
+	rowPitch = (width * 4) * sizeof(unsigned char);
+
+	//Copy the targa image data into the texture
+	deviceContext->UpdateSubresource(m_texture, 0, NULL, m_targaData, rowPitch, 0);
+
+	//Create the shader resource view for the texture
+	hResult = device->CreateShaderResourceView(m_texture, &srvDesc, &m_textures[2]);
+	if (FAILED(hResult))
+	{
+		return false;
+	}
+
+	//Generate the mipmaps for this texture
+	deviceContext->GenerateMips(m_textures[2]);
+
 	//Release the targa image data now that the image data has been loaded into the texture
 	delete[] m_targaData;
 	m_targaData = 0;
@@ -133,6 +171,11 @@ void TextureArrayClass::Shutdown()
 	{
 		m_textures[1]->Release();
 		m_textures[1] = 0;
+	}
+	if (m_textures[2])
+	{
+		m_textures[2]->Release();
+		m_textures[2] = 0;
 	}
 
 	//Release the texture

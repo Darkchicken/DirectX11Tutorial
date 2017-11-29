@@ -14,6 +14,7 @@
 
 #include "TextureShaderClass.h"
 #include "MultiTextureShaderClass.h"
+#include "AlphaMapShaderClass.h"
 #include "TextClass.h"
 
 //Globals
@@ -49,6 +50,8 @@ private:
 	//For UI
 	MultiTextureShaderClass* m_MultiTextureShader;
 	TextureShaderClass* m_TextureShader;
+
+	AlphaMapShaderClass* m_alphaMapShader;
 
 	TextClass* m_Text;
 
