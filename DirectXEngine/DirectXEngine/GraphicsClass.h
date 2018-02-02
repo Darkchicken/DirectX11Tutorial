@@ -15,6 +15,7 @@
 #include "TextureShaderClass.h"
 #include "MultiTextureShaderClass.h"
 #include "AlphaMapShaderClass.h"
+#include "BumpMapShaderClass.h"
 #include "TextClass.h"
 
 //Globals
@@ -52,6 +53,8 @@ private:
 	TextureShaderClass* m_TextureShader;
 
 	AlphaMapShaderClass* m_alphaMapShader;
+
+	BumpMapShaderClass* m_bumpMapShader;
 
 	TextClass* m_Text;
 

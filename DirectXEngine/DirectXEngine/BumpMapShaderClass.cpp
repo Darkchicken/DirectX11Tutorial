@@ -113,7 +113,7 @@ bool BumpMapShaderClass::initializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 	}
 
 	//Create the vertex shader from the buffer
-	result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer, vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader);
+	result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader);
 	if (FAILED(result))
 	{
 		return false;

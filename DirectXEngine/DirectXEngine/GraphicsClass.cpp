@@ -16,6 +16,7 @@ GraphicsClass::GraphicsClass()
 	m_TextureShader = 0;
 	m_MultiTextureShader = 0;
 	m_alphaMapShader = 0;
+	m_bumpMapShader = 0;
 
 	m_lastMouseX = 0;
 	m_lastMouseY = 0;
@@ -86,11 +87,26 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	//Initialize the model object
-	result = m_Model->Initialize(m_D3D->GetDevice(),m_D3D->GetDeviceContext(), "../DirectXEngine/data/square.txt"/*"../DirectXEngine/data/sphere.txt" */ /*"../DirectXEngine/data/model.txt"*/,
-		"../DirectXEngine/data/stone01.tga", "../DirectXEngine/data/dirt01.tga", "../DirectXEngine/data/alpha01.tga");
+	result = m_Model->Initialize(m_D3D->GetDevice(),m_D3D->GetDeviceContext(), "../DirectXEngine/data/cube.txt"/*"../DirectXEngine/data/sphere.txt" */ /*"../DirectXEngine/data/model.txt"*/,
+		"../DirectXEngine/data/stone01.tga", "../DirectXEngine/data/bump01.tga");
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object", L"Error", MB_OK);
+		return false;
+	}
+
+	//Create the bump map shader object
+	m_bumpMapShader = new BumpMapShaderClass;
+	if (!m_bumpMapShader)
+	{
+		return false;
+	}
+
+	//Initialize the bump map shader object
+	result = m_bumpMapShader->Initialize(m_D3D->GetDevice(), hwnd);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bump map shader object", L"Error", MB_OK);
 		return false;
 	}
 
@@ -257,6 +273,14 @@ void GraphicsClass::Shutdown()
 		m_Light = 0;
 	}
 
+	//Release the bump map shader object
+	if (m_bumpMapShader)
+	{
+		m_bumpMapShader->Shutdown();
+		delete m_bumpMapShader;
+		m_bumpMapShader = 0;
+	}
+
 	//Release the light shader object
 	if (m_LightShader)
 	{
@@ -386,14 +410,20 @@ bool GraphicsClass::Render()
 			//Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing
 			m_Model->Render(m_D3D->GetDeviceContext());
 
+
+			//Render the model using the bump map shader
+			m_bumpMapShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(),
+				worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTextureArray(), m_Light->GetDirection(), m_Light->GetDiffuseColor());
 			
 			//Render the model using the light shader
 			//result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(),
 			//	worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(), m_Light->GetDirection(), /*m_Light->GetAmbientColor()*/ color, m_Light->GetDiffuseColor(),
 			//	m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
-
+			
+			/*
 			result = m_alphaMapShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(),
 				worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTextureArray());
+				*/
 				
 
 			//Reset to the original world matrix

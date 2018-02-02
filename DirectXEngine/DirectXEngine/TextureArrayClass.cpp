@@ -20,7 +20,7 @@ TextureArrayClass::~TextureArrayClass()
 }
 
 bool TextureArrayClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, 
-	char* fileName1, char* fileName2, char* fileName3)
+	char* fileName1, char* fileName2)//, char* fileName3)
 {
 	bool result;
 	int height, width;
@@ -115,6 +115,7 @@ bool TextureArrayClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* de
 	//Generate the mipmaps for this texture
 	deviceContext->GenerateMips(m_textures[1]);
 
+	/*
 	//////////////
 	//Texture 3//
 	//////////////
@@ -151,6 +152,8 @@ bool TextureArrayClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* de
 
 	//Generate the mipmaps for this texture
 	deviceContext->GenerateMips(m_textures[2]);
+
+	*/
 
 	//Release the targa image data now that the image data has been loaded into the texture
 	delete[] m_targaData;

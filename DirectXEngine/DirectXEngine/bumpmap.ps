@@ -17,14 +17,14 @@ struct PixelInputType
 	float3 normal : NORMAL;
 	float3 tangent : TANGENT;
 	float3 binormal : BINORMAL;
-}
+};
 
 //Pixel Shader
 float4 BumpMapPixelShader(PixelInputType input) : SV_TARGET
 {
 	float4 textureColor;
 	float4 bumpMap;
-	float4 bumpNormal;
+	float3 bumpNormal;
 	float3 lightDir;
 	float lightIntensity;
 	float4 color;
@@ -57,3 +57,4 @@ float4 BumpMapPixelShader(PixelInputType input) : SV_TARGET
 	color = color * textureColor;
 	
 	return color;
+}
