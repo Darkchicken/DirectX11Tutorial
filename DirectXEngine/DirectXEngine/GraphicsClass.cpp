@@ -17,6 +17,7 @@ GraphicsClass::GraphicsClass()
 	m_MultiTextureShader = 0;
 	m_alphaMapShader = 0;
 	m_bumpMapShader = 0;
+	m_specMapShader = 0;
 
 	m_lastMouseX = 0;
 	m_lastMouseY = 0;
@@ -88,13 +89,29 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	//Initialize the model object
 	result = m_Model->Initialize(m_D3D->GetDevice(),m_D3D->GetDeviceContext(), "../DirectXEngine/data/cube.txt"/*"../DirectXEngine/data/sphere.txt" */ /*"../DirectXEngine/data/model.txt"*/,
-		"../DirectXEngine/data/stone01.tga", "../DirectXEngine/data/bump01.tga");
+		"../DirectXEngine/data/stone02.tga", "../DirectXEngine/data/bump02.tga", "../DirectXEngine/data/spec02.tga");
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object", L"Error", MB_OK);
 		return false;
 	}
 
+	//Create the spec map shader object
+	m_specMapShader = new SpecMapShaderClass;
+	if (!m_specMapShader)
+	{
+		return false;
+	}
+
+	//Initialize the spec map shader object
+	result = m_specMapShader->Initialize(m_D3D->GetDevice(), hwnd);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the spec map shader object", L"Error", MB_OK);
+		return false;
+	}
+
+	/*
 	//Create the bump map shader object
 	m_bumpMapShader = new BumpMapShaderClass;
 	if (!m_bumpMapShader)
@@ -124,6 +141,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		MessageBox(hwnd, L"Could not initialize the light shader object", L"Error", MB_OK);
 		return false;
 	}
+	*/
 
 	//Create the light object
 	m_Light = new LightClass;
@@ -139,6 +157,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_Light->SetSpecularPower(32.0f);
 
+	
 	//Create the multi texture shader object
 	m_TextureShader = new TextureShaderClass;
 	if (!m_TextureShader)
@@ -153,7 +172,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		MessageBox(hwnd, L"Could not initialize the texture shader object", L"Error", MB_OK);
 		return false;
 	}
-
+	/*
 	//Create the multi texture shader object
 	m_MultiTextureShader = new MultiTextureShaderClass;
 	if (!m_MultiTextureShader)
@@ -183,6 +202,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		MessageBox(hwnd, L"Could not initialize the alpha shader object", L"Error", MB_OK);
 		return false;
 	}
+
+	*/
 
 	//Create the model list object
 	m_ModelList = new ModelListClass;
@@ -228,6 +249,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 }
 void GraphicsClass::Shutdown()
 {
+	
 	//Release the alpha map shader object
 	if (m_alphaMapShader)
 	{
@@ -235,6 +257,7 @@ void GraphicsClass::Shutdown()
 		delete m_alphaMapShader;
 		m_alphaMapShader = 0;
 	}
+
 	//Release the text object
 	if(m_Text)
 	{
@@ -271,6 +294,14 @@ void GraphicsClass::Shutdown()
 	{
 		delete m_Light;
 		m_Light = 0;
+	}
+
+	//Release the alpha map shader object
+	if (m_specMapShader)
+	{
+		m_specMapShader->Shutdown();
+		delete m_specMapShader;
+		m_specMapShader = 0;
 	}
 
 	//Release the bump map shader object
@@ -411,9 +442,18 @@ bool GraphicsClass::Render()
 			m_Model->Render(m_D3D->GetDeviceContext());
 
 
+
+			//Render the model using the spec map shader
+			m_specMapShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(),
+				worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTextureArray(), m_Light->GetDirection(), 
+				m_Light->GetDiffuseColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+
+
+			/*
 			//Render the model using the bump map shader
 			m_bumpMapShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(),
 				worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTextureArray(), m_Light->GetDirection(), m_Light->GetDiffuseColor());
+				*/
 			
 			//Render the model using the light shader
 			//result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(),
